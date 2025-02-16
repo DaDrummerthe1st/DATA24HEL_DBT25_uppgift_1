@@ -1,0 +1,22 @@
+[
+  {
+    "genre": "Drama",
+    "count": 13
+  },
+  {
+    "genre": "Adventure",
+    "count": 12
+  },
+  {
+    "genre": "Action",
+    "count": 9
+  },
+  {
+    "genre": "Sci-Fi",
+    "count": 7
+  },
+  {
+    "genre": "Thriller",
+    "count": 6
+  }
+]
