@@ -1,9 +1,22 @@
+"""Not a real module. Provides for a Streamlit-app"""
+import json
+import os
+import io
+
+# from PIL import Image
+import qrcode.image.svg
 import streamlit as st
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-import json
 import pandas as pd
+import numpy as np
+
+# # qrcode aliases
 import qrcode
+import qrcode.constants
+from qrcode.image.pure import PyPNGImage
+# import segno
+
 
 st.header("Att beställa")
 
@@ -23,9 +36,9 @@ df_suppliers[df_suppliers["SupplierID"] == 1]
 df_products['SupplierDescription'] = \
     df_products.apply(lambda row: json.loads(
         # df_suppliers.query(f"SupplierID == {row.SupplierID}") # alternative method for searching
-    df_suppliers[df_suppliers['SupplierID'] == row.SupplierID]
+        df_suppliers[df_suppliers['SupplierID'] == row.SupplierID]
         .to_json(orient='records')
-    ), axis=1) # bygger fortfarande en lista...
+    ), axis=1)  # bygger fortfarande en lista...
 
 # transpose df to JSON
 products_data = json.loads(df_products.to_json(orient='records'))
@@ -45,7 +58,7 @@ try:
     print("Pinged your deployment. You successfully connected to MongoDB!")
 except Exception as e:
     print(e)
-    
+
 # creating connection peripherials
 database = client["Northwind"]
 collection = database["Products"]
@@ -66,7 +79,7 @@ query = [
                         ]
                     }, '$ReorderLevel'
                 ],
-                
+
             }
         }
     }
@@ -75,47 +88,66 @@ results = collection.aggregate(query)
 
 json_normalised = pd.json_normalize(
     results,
-    meta=['_id','ProductName'],
+    meta=['_id', 'ProductName', 'UnitsInStock',
+          'UnitsOnOrder', 'ReorderLevel'],
     record_path=['SupplierDescription'])
 
+# calculating the least amount to order
+least_order_amount = \
+    json_normalised['ReorderLevel'] \
+    - json_normalised['UnitsOnOrder'] \
+    + json_normalised['UnitsInStock']
+
+least_order_amount.name = "least_order_amount"
+
+# create the final df
 df_orderneeds = \
     pd.DataFrame(json_normalised,
                  columns=[
-                    '_id',
-                    'ProductName',
-                    'ContactName',
-                    'Phone'
+                     '_id',
+                     'ProductName',
+                     'ContactName',
+                     'Phone',
                  ])
+# append order_amount
+df_orderneeds = df_orderneeds.join(least_order_amount)
 
-st.dataframe(df_orderneeds)
+swedish_column_names = {
+    '_id': 'Artikelnummer',
+    'ProductName': 'Produkt',
+    'ContactName': 'Kontaktperson',
+    'Phone': 'Telefonnummer',
+    'least_order_amount': 'Saknad mängd'
+}
 
-qr_field, product = st.columns(2)
+st.dataframe(df_orderneeds,
+             hide_index=True,
+             column_config=swedish_column_names,
+             use_container_width=True,
+)
 
-for product in df_orderneeds.items():
-    with qr_field:
-        qrcode.make(product['Phone'])
-    with product:
-        st.write(product['ProductName'])
+product, contact_name, qr_code_list = st.columns([3, 3, 3])
 
+with product:
+    st.subheader('Produkt')
+with contact_name:
+    st.subheader('Kontaktperson')
+with qr_code_list:
+    st.subheader('Telefonnummer')
+# QR - code
+qr = qrcode.QRCode(
+    version=None,
+)
 
-# creating a table
-# product, qr = st.columns(2)
+for _, j in df_orderneeds.iterrows():
+    # create the new row
+    product, contact_name, qr_code_list = st.columns([3, 3, 3])
+    product.write(j.ProductName)
+    contact_name.write(j.ContactName)
 
-# with product:
-#     st.subheader('Produkt')
-
-# with qr:
-#     st.write('Scanna eller klicka på qr-koden')
-# check out the resulting documents (should be 6)
-# for result in results:
-    # with product:
-    #     st.write(result['ProductName'])
+    qr.add_data(f"tel: {j.Phone}")
+    qr.make(fit=True)
+    phone_qr = qr.make_image(fill_color="white", back_color="black")
     
-    # with qr:
-    #     st.write('hej')
-    # for data in json.loads(result):
-    #     st.write(data)
-
-# for i in range(0,10):
-
-#     st.snow()
+    phone_qr_as_np = np.array(phone_qr)
+    qr_code_list.image(phone_qr_as_np)
