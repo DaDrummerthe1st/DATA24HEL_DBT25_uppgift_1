@@ -12,10 +12,11 @@ Joakim Reuterborg
 
 ## I uppgiften har jag:
 1. Besvarat frågorna från [läroboken](https://github.com/AntonioPrgomet/laer_dig_databaser_och_sql_1uppl)
-2. Skapat, redogjort för och uppvisat resultatet av en kontakt med data mot Redis
-3. Skapat, redogjort för och uppvisat resultatet av en kontakt med MongoDB
+2. Skapat, redogjort för och uppvisat resultatet av en kontakt med data mot [Redis](https://redis.io/)
+3. Skapat, redogjort för och uppvisat resultatet av en kontakt med [MongoDB](https://www.mongodb.com/)
 4. Skapat en Streamlit-app för att uppvisa resultatet av MongoDb-resultatet samt [deployat](https://dadrummerthe1st-data24hel-dbt25-uppgift-1-main-drvwk7.streamlit.app/) den till Streamlit Communuity server
-5. Transponerat [movies.json](data/movies/movies.json) till [sex individuella filer](./csv_neo4j/). Jag valde att inte ta bort någon data / kolumn, istället är Null-celler ersatta med siffran 0. En reflektion är att jag skulle velat lägga ner ännu mer tid på denna punkt, även om jag tvingats iterera när jag, ofta av en slump, hittat fel.
+5. Genomfört olika operationer mot [Neo4j](https://neo4j.com/).
+Transponerat [movies.json](data/movies/movies.json) till [sex individuella filer](./csv_neo4j/). Jag valde att inte ta bort någon data / kolumn, istället är Null-celler ersatta med siffran 0. En reflektion är att jag skulle velat lägga ner ännu mer tid på denna punkt, även om jag tvingats iterera när jag, ofta av en slump, hittat fel.
    1. movies.csv - 4 919 st filmer
    2. actors.csv - 6 255 st skådespelare
    3. genres.csv - 26 st genrer
