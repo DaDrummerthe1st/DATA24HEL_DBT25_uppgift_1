@@ -29,10 +29,7 @@ df_products = pd.DataFrame(pd_products)
 df_suppliers = pd.DataFrame(pd_suppliers)
 
 
-# För att förklara slicing som sökmetod
-df_suppliers[df_suppliers["SupplierID"] == 1]
-
-# Add supplier detail on each document (row)
+# Add supplier details on each document (row)
 df_products['SupplierDescription'] = \
     df_products.apply(lambda row: json.loads(
         # df_suppliers.query(f"SupplierID == {row.SupplierID}") # alternative method for searching
